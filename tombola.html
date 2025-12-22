@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1320" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Tombola — Voce & Modalità TV</title>
+  <style>
+    :root{
+      --bg:#0b1320;
+      --card:#111b2e;
+      --muted:#93a4c7;
+      --text:#eaf0ff;
+      --accent:#55d6be;
+      --danger:#ff5c7a;
+      --warn:#ffcc66;
+      --shadow: 0 10px 28px rgba(0,0,0,.38);
+      --radius: 18px;
+      --tap: 56px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 20% 0%, #162546 0%, var(--bg) 55%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) calc(14px + env(safe-area-inset-bottom)) env(safe-area-inset-left);
+    }
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px;
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1fr;
+    }
+    .card{
+      background: rgba(17,27,46,.75);
+      border: 1px solid rgba(147,164,199,.18);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 12px 14px;
+    }
+    header h1{
+      font-size: 18px;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    header .sub{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .pill{
+      font-size: 12px;
+      color: var(--muted);
+      border:1px solid rgba(147,164,199,.25);
+      padding: 8px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(8px);
+      background: rgba(17,27,46,.35);
+      white-space:nowrap;
+    }
+
+    .top{
+      padding: 14px;
+      display:grid;
+      gap: 12px;
+      border-top: 1px solid rgba(147,164,199,.14);
+    }
+    .big{
+      display:flex;
+      gap: 12px;
+      align-items:stretch;
+    }
+    .current{
+      flex:1;
+      min-height: 132px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(85,214,190,.18), rgba(255,255,255,.03));
+      border:1px solid rgba(85,214,190,.25);
+      padding: 14px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .label{ color: var(--muted); font-size: 12px; }
+    .num{ font-size: 64px; line-height: 1; font-weight: 900; letter-spacing: -1px; }
+    .meta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .btns{
+      width: 280px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    button{
+      appearance:none;
+      border:none;
+      border-radius: 16px;
+      height: var(--tap);
+      padding: 0 14px;
+      font-weight: 800;
+      color: var(--text);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(147,164,199,.22);
+      box-shadow: 0 10px 18px rgba(0,0,0,.18);
+      cursor:pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      user-select:none;
+    }
+    button:active{ transform: translateY(1px); }
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+    .primary{
+      background: linear-gradient(135deg, rgba(85,214,190,.95), rgba(85,214,190,.55));
+      color:#08221c;
+      border: 1px solid rgba(85,214,190,.35);
+    }
+    .danger{
+      background: rgba(255,92,122,.12);
+      border: 1px solid rgba(255,92,122,.35);
+      color: #ffd7df;
+    }
+    .ghost{ background: rgba(255,255,255,.04); }
+
+    .row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .toggle{
+      flex:1;
+      min-width: 170px;
+      height: 44px;
+      border-radius: 14px;
+      padding: 0 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      color: var(--muted);
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(147,164,199,.18);
+    }
+    .toggle input{ width: 44px; height: 24px; }
+
+    .content{
+      padding: 14px;
+      display:grid;
+      gap: 14px;
+      border-top: 1px solid rgba(147,164,199,.14);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 8px;
+    }
+    .cell{
+      height: 38px;
+      border-radius: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 800;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(147,164,199,.14);
+      color: rgba(234,240,255,.92);
+      user-select:none;
+    }
+    .cell.drawn{
+      background: rgba(85,214,190,.14);
+      border-color: rgba(85,214,190,.45);
+      color: var(--text);
+      box-shadow: 0 8px 18px rgba(85,214,190,.10);
+    }
+
+    .history{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+      align-items:center;
+    }
+    .chip{
+      height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(147,164,199,.18);
+      font-weight: 800;
+      color: var(--text);
+    }
+    .chip.last{
+      background: rgba(255,204,102,.12);
+      border-color: rgba(255,204,102,.45);
+    }
+
+    .footer{
+      color: var(--muted);
+      font-size: 12px;
+      padding: 0 2px 4px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    /* ---- TV MODE overlay ---- */
+    .tv{
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(1200px 800px at 30% 0%, #1b2f5c 0%, #08101f 55%);
+      display:none;
+      z-index: 9999;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tv.on{ display:block; }
+    .tv-inner{
+      height:100%;
+      width:100%;
+      display:flex;
+      flex-direction:column;
+    }
+    .tv-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding: 14px 14px 10px;
+      gap: 10px;
+    }
+    .tv-title{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .tv-title .t1{ font-size: 14px; color: var(--muted); }
+    .tv-title .t2{ font-size: 18px; font-weight: 900; letter-spacing:.2px; }
+    .tv-actions{
+      display:flex; gap:10px; align-items:center;
+    }
+    .tv-actions button{
+      height: 46px;
+      border-radius: 14px;
+      padding: 0 12px;
+      font-weight: 900;
+    }
+    .tv-main{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 12px 14px;
+    }
+    .tv-number{
+      width: min(720px, 94vw);
+      aspect-ratio: 16/9;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(85,214,190,.18), rgba(255,255,255,.03));
+      border: 1px solid rgba(85,214,190,.30);
+      box-shadow: 0 18px 40px rgba(0,0,0,.45);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .tv-number::after{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.12), transparent 45%);
+      transform: rotate(10deg);
+    }
+    .tv-num{
+      position:relative;
+      font-size: clamp(88px, 14vw, 220px);
+      font-weight: 1000;
+      letter-spacing: -2px;
+    }
+    .tv-bottom{
+      padding: 10px 14px 14px;
+      display:flex;
+      gap: 12px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .tv-hints{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .tv-lastlist{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .tv-lastchip{
+      height: 38px;
+      min-width: 52px;
+      padding: 0 12px;
+      border-radius: 999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(147,164,199,.18);
+      font-weight: 900;
+    }
+    .tv-lastchip.first{
+      background: rgba(255,204,102,.14);
+      border-color: rgba(255,204,102,.55);
+    }
+
+    @media (max-width: 420px){
+      .num{ font-size: 56px; }
+      .btns{ width: 200px; }
+      .grid{ gap: 7px; }
+      .cell{ height: 36px; border-radius: 11px; }
+    }
+    @media (min-width: 860px){
+      .wrap{ grid-template-columns: 1.25fr .75fr; align-items:start; }
+      .right{ position: sticky; top: 14px; }
+      .big{ flex-direction: column; }
+      .btns{ width: 100%; flex-direction: row; }
+      .btns button{ flex:1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div>
+          <h1>Tombola — Voce & Modalità TV</h1>
+          <div class="sub">1–90 • voce (TTS) • TV full screen</div>
+        </div>
+        <div class="pill" id="statusPill">Pronto</div>
+      </header>
+
+      <div class="top">
+        <div class="big">
+          <div class="current" aria-live="polite">
+            <div class="label">Ultimo numero estratto</div>
+            <div class="num" id="currentNum">—</div>
+            <div class="meta">
+              <div><span id="remaining">90</span> rimasti</div>
+              <div>Estratti: <span id="drawnCount">0</span>/90</div>
+            </div>
+          </div>
+
+          <div class="btns">
+            <button class="primary" id="drawBtn">🎲 Estrai</button>
+            <button class="ghost" id="tvBtn">📺 Modalità TV</button>
+            <button class="ghost" id="undoBtn">↩️ Annulla</button>
+            <button class="danger" id="resetBtn">🧨 Reset</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <label class="toggle" title="Annuncia il numero con la voce (Text-to-Speech). Su iPhone potrebbe richiedere un primo tap.">
+            <span>Voce</span>
+            <input type="checkbox" id="voiceToggle" checked />
+          </label>
+
+          <label class="toggle" title="Se attivo, dice anche 'È uscito il...' (invece del solo numero).">
+            <span>Frase completa</span>
+            <input type="checkbox" id="phraseToggle" checked />
+          </label>
+
+          <label class="toggle" title="Tienilo salvato anche se chiudi la pagina.">
+            <span>Salva stato</span>
+            <input type="checkbox" id="persistToggle" checked />
+          </label>
+        </div>
+
+        <div class="label" style="margin-top:2px;">
+          Tip: in modalità TV puoi toccare lo schermo per estrarre.
+        </div>
+      </div>
+
+      <div class="content">
+        <div>
+          <div class="label" style="margin-bottom:8px;">Griglia (numeri estratti evidenziati)</div>
+          <div class="grid" id="grid"></div>
+        </div>
+
+        <div>
+          <div class="label" style="margin-bottom:8px;">Storico (ultimo evidenziato)</div>
+          <div class="history" id="history"></div>
+        </div>
+
+        <div class="footer">
+          <div>Space = estrai • Ctrl/Cmd+Z = annulla • ESC = esci dalla TV</div>
+          <div id="storageInfo"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card right" style="padding:14px;">
+      <div class="label">Nota su iPhone/Safari</div>
+      <div style="height:8px;"></div>
+      <div style="color:var(--muted); font-size:12px; line-height:1.35;">
+        La voce (TTS) può partire solo dopo un’interazione dell’utente (un tap). Se non senti niente:
+        fai un tap su “Estrai” una volta, poi riprova.
+      </div>
+    </div>
+  </div>
+
+  <!-- TV overlay -->
+  <div class="tv" id="tvOverlay" aria-hidden="true">
+    <div class="tv-inner">
+      <div class="tv-top">
+        <div class="tv-title">
+          <div class="t1" id="tvMeta">90 rimasti • 0/90</div>
+          <div class="t2">Tombola</div>
+        </div>
+        <div class="tv-actions">
+          <button class="primary" id="tvDrawBtn">🎲 Estrai</button>
+          <button class="ghost" id="tvExitBtn">✖️ Esci</button>
+        </div>
+      </div>
+
+      <div class="tv-main" id="tvTapArea" title="Tocca per estrarre">
+        <div class="tv-number">
+          <div class="tv-num" id="tvNum">—</div>
+        </div>
+      </div>
+
+      <div class="tv-bottom">
+        <div class="tv-hints">
+          Tocca lo schermo o premi “Estrai”.<br/>
+          ESC per uscire • Doppio tap = annulla
+        </div>
+        <div class="tv-lastlist" id="tvLast"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const N = 90;
+  const LS_KEY = "tombola_tv_voice_v1";
+
+  // Main UI
+  const elGrid = document.getElementById("grid");
+  const elHistory = document.getElementById("history");
+  const elCurrent = document.getElementById("currentNum");
+  const elRemaining = document.getElementById("remaining");
+  const elDrawnCount = document.getElementById("drawnCount");
+  const elStatus = document.getElementById("statusPill");
+  const elStorageInfo = document.getElementById("storageInfo");
+
+  const btnDraw = document.getElementById("drawBtn");
+  const btnUndo = document.getElementById("undoBtn");
+  const btnReset = document.getElementById("resetBtn");
+  const btnTV = document.getElementById("tvBtn");
+
+  const voiceToggle = document.getElementById("voiceToggle");
+  const phraseToggle = document.getElementById("phraseToggle");
+  const persistToggle = document.getElementById("persistToggle");
+
+  // TV UI
+  const tvOverlay = document.getElementById("tvOverlay");
+  const tvNum = document.getElementById("tvNum");
+  const tvMeta = document.getElementById("tvMeta");
+  const tvLast = document.getElementById("tvLast");
+  const tvDrawBtn = document.getElementById("tvDrawBtn");
+  const tvExitBtn = document.getElementById("tvExitBtn");
+  const tvTapArea = document.getElementById("tvTapArea");
+
+  // State
+  let drawn = [];
+  let drawnSet = new Set();
+  let persist = true;
+  let voiceOn = true;
+  let phraseOn = true;
+
+  // --- Helpers
+  const randInt = (maxExcl) => Math.floor(Math.random() * maxExcl);
+
+  function updateStatus(msg){
+    elStatus.textContent = msg;
+    elStatus.style.borderColor = "rgba(85,214,190,.35)";
+    setTimeout(()=> elStatus.style.borderColor = "rgba(147,164,199,.25)", 450);
+  }
+
+  function save(){
+    if(!persist){ elStorageInfo.textContent = "Salvataggio: off"; return; }
+    const payload = { drawn, persist, voiceOn, phraseOn };
+    try{
+      localStorage.setItem(LS_KEY, JSON.stringify(payload));
+      elStorageInfo.textContent = "Salvataggio: on";
+    }catch(e){
+      elStorageInfo.textContent = "Salvataggio: errore";
+    }
+  }
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      if(!raw) return;
+      const payload = JSON.parse(raw);
+      if(payload && Array.isArray(payload.drawn)){
+        drawn = payload.drawn.filter(x => Number.isInteger(x) && x>=1 && x<=N);
+        drawnSet = new Set(drawn);
+      }
+      if(typeof payload.persist === "boolean") persist = payload.persist;
+      if(typeof payload.voiceOn === "boolean") voiceOn = payload.voiceOn;
+      if(typeof payload.phraseOn === "boolean") phraseOn = payload.phraseOn;
+    }catch(e){}
+  }
+
+  function buildGrid(){
+    elGrid.innerHTML = "";
+    for(let i=1;i<=N;i++){
+      const d = document.createElement("div");
+      d.className = "cell";
+      d.id = "cell-"+i;
+      d.textContent = i;
+      elGrid.appendChild(d);
+    }
+  }
+
+  // --- Voice (TTS)
+  function speakNumber(n){
+    if(!voiceOn) return;
+    if(!("speechSynthesis" in window)) return;
+
+    try{
+      window.speechSynthesis.cancel();
+      const text = phraseOn ? `È uscito il ${n}` : String(n);
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "it-IT";
+      utter.rate = 0.95;
+      utter.pitch = 1.0;
+
+      // Prova a scegliere una voce italiana (se disponibile)
+      const voices = window.speechSynthesis.getVoices?.() || [];
+      const it = voices.find(v => (v.lang || "").toLowerCase().startsWith("it"));
+      if(it) utter.voice = it;
+
+      window.speechSynthesis.speak(utter);
+    }catch(e){
+      // se fallisce, non bloccare l'app
+    }
+  }
+
+  // Alcuni browser popolano le voci in modo async
+  if("speechSynthesis" in window){
+    window.speechSynthesis.onvoiceschanged = () => {};
+  }
+
+  // --- Render (Main + TV)
+  function render(){
+    const last = drawn.length ? drawn[drawn.length-1] : null;
+
+    // main
+    elCurrent.textContent = last ? String(last) : "—";
+    elDrawnCount.textContent = String(drawn.length);
+    elRemaining.textContent = String(N - drawn.length);
+
+    for(let i=1;i<=N;i++){
+      const cell = document.getElementById("cell-"+i);
+      if(cell) cell.classList.toggle("drawn", drawnSet.has(i));
+    }
+
+    elHistory.innerHTML = "";
+    [...drawn].reverse().forEach((num, idx) => {
+      const chip = document.createElement("div");
+      chip.className = "chip" + (idx===0 ? " last" : "");
+      chip.textContent = num;
+      elHistory.appendChild(chip);
+    });
+
+    btnDraw.disabled = drawn.length >= N;
+    btnUndo.disabled = drawn.length === 0;
+    tvDrawBtn.disabled = drawn.length >= N;
+
+    if(drawn.length >= N) updateStatus("Finito: 90/90");
+    else updateStatus("In corso");
+
+    // tv
+    tvNum.textContent = last ? String(last) : "—";
+    tvMeta.textContent = `${N - drawn.length} rimasti • ${drawn.length}/90`;
+
+    // ultimi 8 estratti in TV (più recenti)
+    tvLast.innerHTML = "";
+    const lastList = [...drawn].slice(-8).reverse();
+    lastList.forEach((num, idx) => {
+      const c = document.createElement("div");
+      c.className = "tv-lastchip" + (idx===0 ? " first" : "");
+      c.textContent = num;
+      tvLast.appendChild(c);
+    });
+
+    save();
+  }
+
+  // --- Actions
+  function drawOne(){
+    if(drawn.length >= N) return;
+
+    const remaining = [];
+    for(let i=1;i<=N;i++){
+      if(!drawnSet.has(i)) remaining.push(i);
+    }
+    const pick = remaining[randInt(remaining.length)];
+    drawn.push(pick);
+    drawnSet.add(pick);
+
+    render();
+    speakNumber(pick);
+  }
+
+  function undo(){
+    if(!drawn.length) return;
+    const last = drawn.pop();
+    drawnSet.delete(last);
+    render();
+  }
+
+  function resetAll(){
+    const ok = confirm("Reset della partita? (tutti i numeri tornano disponibili)");
+    if(!ok) return;
+    drawn = [];
+    drawnSet = new Set();
+    if("speechSynthesis" in window) window.speechSynthesis.cancel();
+    render();
+  }
+
+  // --- TV Mode
+  function openTV(){
+    tvOverlay.classList.add("on");
+    tvOverlay.setAttribute("aria-hidden", "false");
+    // impedisce scroll dietro
+    document.body.style.overflow = "hidden";
+    render();
+  }
+  function closeTV(){
+    tvOverlay.classList.remove("on");
+    tvOverlay.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  // --- Events
+  btnDraw.addEventListener("click", drawOne);
+  btnUndo.addEventListener("click", undo);
+  btnReset.addEventListener("click", resetAll);
+  btnTV.addEventListener("click", openTV);
+
+  tvDrawBtn.addEventListener("click", drawOne);
+  tvExitBtn.addEventListener("click", closeTV);
+
+  // Tap area: tap/click to draw
+  tvTapArea.addEventListener("click", (e) => {
+    // evita che un click su bottone passi qui
+    if(e.target && (e.target.closest("button"))) return;
+    drawOne();
+  });
+
+  // double tap = undo (TV)
+  let lastTapTs = 0;
+  tvTapArea.addEventListener("touchend", (e) => {
+    const now = Date.now();
+    if(now - lastTapTs < 320){
+      undo();
+      lastTapTs = 0;
+    }else{
+      lastTapTs = now;
+    }
+  }, {passive:true});
+
+  persistToggle.addEventListener("change", () => {
+    persist = persistToggle.checked;
+    updateStatus(persist ? "Salvataggio attivo" : "Salvataggio disattivo");
+    save();
+  });
+
+  voiceToggle.addEventListener("change", () => {
+    voiceOn = voiceToggle.checked;
+    updateStatus(voiceOn ? "Voce on" : "Voce off");
+    save();
+  });
+
+  phraseToggle.addEventListener("change", () => {
+    phraseOn = phraseToggle.checked;
+    updateStatus(phraseOn ? "Frase completa on" : "Solo numero");
+    save();
+  });
+
+  // Keyboard shortcuts
+  window.addEventListener("keydown", (e) => {
+    if(e.code === "Space"){
+      e.preventDefault();
+      drawOne();
+    }
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z"){
+      e.preventDefault();
+      undo();
+    }
+    if(e.key === "Escape"){
+      if(tvOverlay.classList.contains("on")) closeTV();
+    }
+  });
+
+  // Init
+  buildGrid();
+  load();
+  persistToggle.checked = persist;
+  voiceToggle.checked = voiceOn;
+  phraseToggle.checked = phraseOn;
+  render();
+})();
+</script>
+</body>
+</html>
